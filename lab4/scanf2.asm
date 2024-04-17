@@ -18,11 +18,11 @@ _main:
 
 ;        esp -> [ret]  ; return address
 
-         push format  ; *(int*)(esp-4) = format ; esp = esp - 4
+         push format  ; *(int*)(esp - 4) = format ; esp = esp - 4
          
 ;        esp -> [format][ret]  ; return address
 
-         call _printf  ; printf("a = !\n");
+         call _printf  ; printf(format);
          
 ;        esp -> [a][ret]
 
@@ -43,12 +43,12 @@ _main:
          
 ;        esp -> [format3][a][ret]
 
-         call _printf  ; printf("a = %d\n", a);
+         call _printf  ; printf(format3, a);
          add esp, 2*4  ; esp = esp + 8
          
 ;        esp -> [ret]
 
-         push 0      ; esp ->[0][ret]
+         push 0      ; esp ->[00 00 00 00][ret]
          call _exit  ; exit(0);
 
 %ifdef COMMENT

@@ -2,50 +2,30 @@
 
 ;        esp -> [ret]  ; ret - adres powrotu do asmloader
 
-a        equ 10
-b        equ 5
+a        equ 4294967295
+b        equ 2
 
          mov eax, a  ; eax = a
          mov ecx, b  ; ecx = b
          
-         clc           ; CF = 0
-         sbb eax, ecx  ; eax = eax - ecx + CF
-         
-         push eax  ; eax -> stack
+         mul ecx  ; edx:eax = eax*ecx
 
-;        esp -> [eax][ret]
+;        mul arg  ; edx:eax = eax*arg
+
+         push edx  ; edx -> stack
+         push eax  ; eax -> stack
+         
+;        esp -> [eax][edx][ret]
 
          call getaddr  ; push on the stack the run-time address of format and jump to getaddr
 format:
-         db "roznica1 = %d", 0xA, 0
+         db "Iloczyn = %lld", 0xA, 0
 getaddr:
 
-;        esp -> [format][eax][ret]
+;        esp -> [format][eax][edx][ret]
 
-         call [ebx+3*4]  ; printf(format, eax);
-         add esp, 2*4      ; esp = esp + 8
-
-;        esp -> [ret]
-
-         mov eax, a  ; eax = a
-         mov ecx, b  ; ecx = b
-
-         stc           ; CF = 1
-         sbb eax, ecx  ; eax = eax - ecx + CF
-         
-         push eax  ; eax -> stack
-
-;        esp -> [eax][ret]
-
-         call getaddr2  ; push on the stack the run-time address of format2 and jump to getaddr2
-format2:
-         db "roznica2 = %d", 0xA, 0
-getaddr2:
-
-;        esp -> [format2][eax][ret]
-
-         call [ebx+3*4]  ; printf(format2, eax);
-         add esp, 2*4      ; esp = esp + 8
+         call [ebx+3*4]  ; printf(format, edx:eax);
+         add esp, 3*4    ; esp = esp + 12
 
 ;        esp -> [ret]
 

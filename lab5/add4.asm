@@ -2,43 +2,44 @@
 
 ;        esp -> [ret]  ; ret - adres powrotu do asmloader
 
+%define  UINT_MAX = 4294967295
+
+a        equ 4294967295
+b        equ 1
+
+;        edi:esi
+;        edx:eax + 
+;        ---------
+;        edx:eax
+
+;          0:esi
+;          0:eax +
+;        -------
+;        edx:eax
+
+         mov esi, a  ; esi = a
+         mov eax, b  ; eax = b
+         
+         add eax, esi  ; eax = eax + esi
+         
+         mov edx, 0  ; edx = 0
+         adc edx, 0  ; edx = edx + 0 + CF
+         
+         push edx  ; edx -> stack
+         push eax  ; eax -> stack
+
+;        esp -> [eax][edx][ret]
+
          call getaddr  ; push on the stack the run-time address of format and jump to getaddr
 format:
-         db "a = ", 0
+         db "Suma = %llu", 0xA, 0
 getaddr:
 
-;        esp -> [format][ret]
+;        esp -> [format][eax][edx][ret]
 
-         call [ebx+3*4]  ; printf(format);
+         call [ebx+3*4]  ; printf(format, eax:edx);
+         add esp, 3*4    ; esp = esp + 12
 
-;        esp -> [a][ret]  ; zmienna a, adres format nie jest juz potrzebny
-
-         push esp  ; esp -> stack
-         
-;        esp -> [addr_a][a][ret]
-
-         call getaddr2
-format2:
-         db "%d", 0
-getaddr2:
-
-;        esp -> [format2][addr_a][a][ret]
-
-         call [ebx+4*4]  ; scanf(format2, addr_a);
-         add esp, 2*4    ; esp = esp + 8
-         
-;        esp -> [a][ret]
-
-         call getaddr3
-format3:
-         db "a = %d", 0xA, 0
-getaddr3:
-
-;        esp -> [format3][a][ret]
-
-         call [ebx+3*4]  ; printf(format3, a);
-         add esp, 2*4    ; esp = esp + 8
-         
 ;        esp -> [ret]
 
          push 0          ; esp -> [00 00 00 00][ret]

@@ -2,48 +2,45 @@
 
 ;        esp -> [ret]  ; ret - adres powrotu do asmloader
 
-a        equ 120
-b        equ 22
+%define  UINT_MAX = 4294967295
 
-         mov eax, a  ; eax = a
+a        equ 4294967295
+b        equ 1
 
-         clc         ; CF = 0
-         sbb eax, b  ; eax = eax - b + CF
+;        edi:esi
+;        edx:eax + 
+;        ---------
+;        edx:eax
+
+;          0:esi
+;          0:eax +
+;        -------
+;        edx:eax
+
+         mov esi, a  ; esi = a
+         mov eax, b  ; eax = b
          
+         add eax, esi  ; eax = eax + esi
+
+         mov edi, 0  ; edi = 0
+         mov edx, 0  ; edx = 0
+
+         adc edx, edi  ; edx = edx + edi + CF
+         
+         push edx  ; edx -> stack
          push eax  ; eax -> stack
 
-;        esp -> [eax][ret]
+;        esp -> [eax][edx][ret]
 
          call getaddr  ; push on the stack the run-time address of format and jump to getaddr
 format:
-         db "roznica1 = %d", 0xA, 0
+         db "Suma = %llu", 0xA, 0
 getaddr:
 
-;        esp -> [format][eax][ret]
+;        esp -> [format][eax][edx][ret]
 
-         call [ebx+3*4]  ; printf(format, eax);
-         add esp, 2*4      ; esp = esp + 8
-
-;        esp -> [ret]
-
-         mov eax, a  ; eax = a
-
-         stc           ; CF = 1
-         sbb eax, b  ; eax = eax - b + CF
-         
-         push eax  ; eax -> stack
-
-;        esp -> [eax][ret]
-
-         call getaddr2  ; push on the stack the run-time address of format2 and jump to getaddr2
-format2:
-         db "roznica2 = %d", 0xA, 0
-getaddr2:
-
-;        esp -> [format2][eax][ret]
-
-         call [ebx+3*4]  ; printf(format2, eax);
-         add esp, 2*4      ; esp = esp + 8
+         call [ebx+3*4]  ; printf(format, eax:edx);
+         add esp, 3*4    ; esp = esp + 12
 
 ;        esp -> [ret]
 

@@ -8,7 +8,7 @@ section  .data
 
 format   db "a = ", 0
 format2  db "%d", 0
-format3  db "modul = %d",0xA, 0
+format3  db "modul = %d", 0xA, 0
 
 section  .bss
 
@@ -25,7 +25,7 @@ _main:
 
 ;        esp -> [format][ret]
 
-         call _printf  ; printf("a = ");
+         call _printf  ; printf(format);
          add esp, 4    ; esp = esp + 4
 
 ;        esp -> [ret]
@@ -51,6 +51,7 @@ _main:
 
          neg edx  ; edx = -edx
 nieujemna:
+
          push edx
 
 ;        esp -> [edx][ret]
@@ -59,12 +60,12 @@ nieujemna:
 
 ;        esp -> [format3][edx][ret]
 
-         call _printf  ; printf(format, edx);
+         call _printf  ; printf(format3, edx);
          add esp, 2*4    ; esp = esp + 8
 
 ;        esp -> [ret]
 
-         push 0      ; esp ->[0][ret]
+         push 0      ; esp ->[00 00 00 00][ret]
          call _exit  ; exit(0);
 
 

@@ -1,40 +1,47 @@
          [bits 32]
 
-;        esp -> [ret]  ; ret - adres powrotu do asmloader
+;        esp -> [ret]  ; ret - return address
 
-liczba   equ -19
+a        equ 1
+b        equ -2
+c        equ 3
+d        equ -4
 
-         mov eax, liczba  ; eax = liczba
-         mov edx, eax     ; edx = eax = liczba
+         mov eax, a  ; eax = a
+         mov ecx, b  ; ecx = b
 
-         test eax, eax  ;                       ; OF SF ZF AF PF CF affected
-         jns nieujemna  ; jump if sign not set  ; SF = 0
+         imul ecx  ; edx:eax = eax * ecx
 
-         neg edx  ; edx = -edx
+         mov edi, edx  ; edi = edx
+         mov esi, eax  ; esi = eax
 
-nieujemna:
+         mov eax, c  ; eax = c
+         mov ecx, d  ; ecx = d
 
-         push edx
-         push eax
+         imul ecx  ; edx:eax = eax * ecx
+
+         add eax, esi  ; eax = eax + esi
+         adc edx, edi  ; edx = edx + edi
+
+         push edx  ; edx -> stack
+         push eax  ; eax -> stack
 
 ;        esp -> [eax][edx][ret]
 
-         call getaddr
+         call getaddr  ; push on the stack the runtime address of format and jump to getaddr
 format:
-         db "liczba = %d", 0xA
-         db "modul = %d", 0xA, 0
+         db 'a*b + c*d = %lld', 0xA, 0
 getaddr:
 
 ;        esp -> [format][eax][edx][ret]
 
-         call [ebx+3*4]  ; printf(format, eax, edx);
+         call [ebx+3*4]  ; printf(format, edx:eax);
          add esp, 3*4    ; esp = esp + 12
-         
+
 ;        esp -> [ret]
 
-         push 0          ; esp ->[0][ret]
+         push 0          ; esp -> [00 00 00 00][ret]
          call [ebx+0*4]  ; exit(0);
-
 ; asmloader API
 ;
 ; ESP wskazuje na prawidlowy stos
